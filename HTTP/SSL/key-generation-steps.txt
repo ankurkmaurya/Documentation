@@ -1,0 +1,104 @@
+-------------- Steps to generate SSL key with Own SSL Certificate Authority --------------
+
+Generated with GIT Bash tool
+
+1. winpty openssl genrsa -des3 -out eps-root.key 2048
+   eps-root.key xxxxxxx
+   
+2. winpty openssl req -x509 -new -nodes -key eps-root.key -sha256 -days 7670 -out eps-root.pem
+   eps-root.pem
+    Country Name (2 letter code) [AU]:IN
+	State or Province Name (full name) [Some-State]:Maharashtra
+	Locality Name (eg, city) []:Mumbai
+	Organization Name (eg, company) [Internet Widgits Pty Ltd]:Electronic Payment & Services Pvt. Ltd.
+	Organizational Unit Name (eg, section) []:Information Technology
+	Common Name (e.g. server FQDN or YOUR name) []:electronicpay.in
+	Email Address []:it@electronicpay.in
+
+3. Convert PEM to CRT file format
+	winpty openssl x509 -outform der -in eps-root.pem -out eps-root.crt
+	eps-root.crt
+
+4. Add the Root Certificate 
+   Add Certificate    :- certutil.exe -addstore Root "eps-root.crt"
+   Delete Certificate :- certutil.exe –delstore Root electronicpay.in
+   
+    Command Result:
+    D:\Programs\Self Signed Certificate>certutil.exe -addstore Root "eps-root.crt"
+	Root "Trusted Root Certification Authorities"
+	Signature matches Public Key
+	Certificate "electronicpay.in" added to store.
+	CertUtil: -addstore command completed successfully.
+
+	Command Result:
+	D:\Programs\Self Signed Certificate>certutil.exe -delstore Root electronicpay.in
+	Root "Trusted Root Certification Authorities"
+	Deleting Certificate 10: E=it@electronicpay.in, CN=electronicpay.in, OU=Information Technology, 
+	O=Electronic Payment & Services Pvt. Ltd., L=Mumbai, S=Maharashtra, C=IN:3d9868099712d267ea387a28e57ca11c5087ebb9
+	CertUtil: -delstore command completed successfully.
+
+5. Creating CA-Signed Certificates 
+	winpty openssl genrsa -out smartx.electronicpay.key 2048
+	smartx.electronicpay.key xxxxxxxxx
+
+6. Creating CA CSR
+	winpty openssl req -new -key smartx.electronicpay.key -out smartx.electronicpay.csr
+	
+	Command Result:
+	-----
+	Country Name (2 letter code) [AU]:IN
+	State or Province Name (full name) [Some-State]:Maharashtra
+	Locality Name (eg, city) []:Mumbai
+	Organization Name (eg, company) [Internet Widgits Pty Ltd]:Electronic Payment &
+	Services Pvt. Ltd.
+	Organizational Unit Name (eg, section) []:Information Technology
+	Common Name (e.g. server FQDN or YOUR name) []:smartx.electronicpay.in
+	Email Address []:it@electronicpay.in
+
+	Please enter the following 'extra' attributes
+	to be sent with your certificate request
+	A challenge password []:xxxxxxx
+	An optional company name []:EPS
+
+	
+
+7. Create an X509 V3 certificate extension config file
+    FileName : smartx.electronicpay.ext
+   
+		authorityKeyIdentifier=keyid,issuer
+		basicConstraints=CA:FALSE
+		keyUsage = digitalSignature, nonRepudiation, keyEncipherment, dataEncipherment
+		subjectAltName = @eps
+
+		[eps]
+		DNS.1 = smartx.electronicpay
+
+8. Create the certificate: using CA CSR, the CA private key, the CA certificate, and the config file
+
+	 winpty openssl x509 -req -in smartx.electronicpay.csr -CA eps-root.pem -CAkey eps-root.key 
+	-out smartx.electronicpay.crt -days 3652 -sha256 -extfile smartx.electronicpay.ext
+	
+9. Convert .crt file to .pfx	
+	
+	winpty openssl pkcs12 -export -out smartx.electronicpay.pfx -inkey smartx.electronicpay.key -in smartx.electronicpay.crt -certfile eps-root.crt -name "smartx.electronicpay"
+	smartx.electronicpay.pfx
+	xxxxxxxxx
+	
+	
+	
+	
+-------------- How to extract a Certificate and a Private Key Files from a *.pfx file --------------
+
+1. Export Private Key file
+   winpty openssl pkcs12 -in "C:\Users\ankur.maurya\Desktop\SVN Server\New folder (2)\client-live-keystore.pfx" -nocerts -out server_enc.key
+
+2. Extract the passphrase from the Private Key
+   winpty openssl rsa -in server_enc.key -out server_dec.key
+   
+3. Export certificate file
+   winpty openssl pkcs12 -in "C:\Users\ankur.maurya\Desktop\SVN Server\New folder (2)\client-live-keystore.pfx" -clcerts -nokeys -out server.crt 
+
+
+
+
+
