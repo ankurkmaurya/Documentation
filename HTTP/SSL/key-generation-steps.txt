@@ -90,13 +90,13 @@ Generated with GIT Bash tool
 -------------- How to extract a Certificate and a Private Key Files from a *.pfx file --------------
 
 1. Export Private Key file
-   winpty openssl pkcs12 -in "C:\Users\ankur.maurya\Desktop\SVN Server\New folder (2)\client-live-keystore.pfx" -nocerts -out server_enc.key
+   winpty openssl pkcs12 -in "C:\Users\ankur.maurya\Desktop\SVN Server\New folder\client-live-keystore.pfx" -nocerts -out server_enc.key
 
 2. Extract the passphrase from the Private Key
    winpty openssl rsa -in server_enc.key -out server_dec.key
    
 3. Export certificate file
-   winpty openssl pkcs12 -in "C:\Users\ankur.maurya\Desktop\SVN Server\New folder (2)\client-live-keystore.pfx" -clcerts -nokeys -out server.crt 
+   winpty openssl pkcs12 -in "C:\Users\ankur.maurya\Desktop\SVN Server\New folder\client-live-keystore.pfx" -clcerts -nokeys -out server.crt 
 
 
 
